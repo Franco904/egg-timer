@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.example.android.eggtimernotifications
+package com.example.android.eggtimernotifications.ui.activity
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.android.eggtimernotifications.ui.EggTimerFragment
+import com.example.android.eggtimernotifications.R
+import com.example.android.eggtimernotifications.ui.fragment.EggTimerFragment
 
 class MainActivity : AppCompatActivity() {
 

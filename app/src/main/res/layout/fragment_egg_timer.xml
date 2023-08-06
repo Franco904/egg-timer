@@ -23,13 +23,13 @@
 
         <variable
                 name="eggTimerViewModel"
-                type="com.example.android.eggtimernotifications.ui.EggTimerViewModel" />
+                type="com.example.android.eggtimernotifications.ui.viewModel.EggTimerViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context=".ui.EggTimerFragment">
+            tools:context=".ui.fragment.EggTimerFragment">
 
         <TextView
             android:id="@+id/textView"

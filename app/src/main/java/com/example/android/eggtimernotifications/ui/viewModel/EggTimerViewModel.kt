@@ -14,7 +14,7 @@
  * limitations under the License.
  */
  
-package com.example.android.eggtimernotifications.ui
+package com.example.android.eggtimernotifications.ui.viewModel
 
 import android.app.*
 import android.content.Context
@@ -22,18 +22,20 @@ import android.content.Intent
 import android.os.CountDownTimer
 import android.os.SystemClock
 import androidx.core.app.AlarmManagerCompat
-import androidx.core.content.ContextCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.*
 import com.example.android.eggtimernotifications.receiver.AlarmReceiver
 import com.example.android.eggtimernotifications.R
-import com.example.android.eggtimernotifications.util.cancelNotifications
-import com.example.android.eggtimernotifications.util.sendNotification
+import com.example.android.eggtimernotifications.notification.NotificationHandler
 import kotlinx.coroutines.*
 
 class EggTimerViewModel(private val app: Application) : AndroidViewModel(app) {
+    private val notificationHandler by lazy {
+        NotificationHandler(app.baseContext, NotificationManagerCompat.from(app.baseContext))
+    }
 
-    private val REQUEST_CODE = 0
-    private val TRIGGER_TIME = "TRIGGER_AT"
+    private val requestCode = 0
+    private val triggerTimeKey = "TRIGGER_AT"
 
     private val minute: Long = 60_000L
     private val second: Long = 1_000L
@@ -64,14 +66,14 @@ class EggTimerViewModel(private val app: Application) : AndroidViewModel(app) {
     init {
         _alarmOn.value = PendingIntent.getBroadcast(
             getApplication(),
-            REQUEST_CODE,
+            requestCode,
             notifyIntent,
             PendingIntent.FLAG_NO_CREATE
         ) != null
 
         notifyPendingIntent = PendingIntent.getBroadcast(
             getApplication(),
-            REQUEST_CODE,
+            requestCode,
             notifyIntent,
             PendingIntent.FLAG_UPDATE_CURRENT
         )
@@ -119,13 +121,7 @@ class EggTimerViewModel(private val app: Application) : AndroidViewModel(app) {
                 }
                 val triggerTime = SystemClock.elapsedRealtime() + selectedInterval
 
-                // TODO: Step 1.15 call cancel notification
-                val notificationManager =
-                    ContextCompat.getSystemService(
-                        app,
-                        NotificationManager::class.java
-                    ) as NotificationManager
-                notificationManager.cancelNotifications()
+                notificationHandler.cancelAllNotifications()
 
                 AlarmManagerCompat.setExactAndAllowWhileIdle(
                     alarmManager,
@@ -183,11 +179,11 @@ class EggTimerViewModel(private val app: Application) : AndroidViewModel(app) {
 
     private suspend fun saveTime(triggerTime: Long) =
         withContext(Dispatchers.IO) {
-            prefs.edit().putLong(TRIGGER_TIME, triggerTime).apply()
+            prefs.edit().putLong(triggerTimeKey, triggerTime).apply()
         }
 
     private suspend fun loadTime(): Long =
         withContext(Dispatchers.IO) {
-            prefs.getLong(TRIGGER_TIME, 0)
+            prefs.getLong(triggerTimeKey, 0)
         }
 }
