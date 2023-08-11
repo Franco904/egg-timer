@@ -27,7 +27,7 @@
     <string name="message_subscribed">Subscribed to topic</string>
     <string name="egg_notification_channel_id" translatable="false">egg_channel</string>
     <string name="egg_notification_channel_name" translatable="true">Egg</string>
-    <string name="breakfast_notification_channel_id" translatable="false">fcm_default_channel</string>
+    <string name="breakfast_notification_channel_id" translatable="false">fcm_breakfast_channel</string>
     <string name="breakfast_notification_channel_name" translatable="true">Breakfast</string>
     <string name="eggs_ready">It is time! Bon appetit!</string>
     <string name="timer_running">Egg timer is running...</string>

@@ -20,16 +20,6 @@ class NotificationHandler(
     private val notificationManager: NotificationManager,
 ) {
     /**
-     * Create app notification channels.
-     */
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun createNotificationChannels(vararg channels: NotificationChannel) {
-        for (channel in channels.toList()) {
-            notificationManager.createNotificationChannel(channel)
-        }
-    }
-
-    /**
      * Builds and delivers the notification.
      */
     fun sendNotification(messageBody: String) {

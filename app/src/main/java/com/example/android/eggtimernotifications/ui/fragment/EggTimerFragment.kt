@@ -26,13 +26,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.android.eggtimernotifications.R
 import com.example.android.eggtimernotifications.databinding.FragmentEggTimerBinding
+import com.example.android.eggtimernotifications.notification.channels.BreakfastNotificationChannel
 import com.example.android.eggtimernotifications.notification.channels.EggNotificationChannel
 import com.example.android.eggtimernotifications.ui.viewModel.EggTimerViewModel
 
@@ -62,21 +62,13 @@ class EggTimerFragment : Fragment() {
 
     private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val eggNotificationChannel = NotificationChannel(
-                getString(EggNotificationChannel.ID),
-                getString(EggNotificationChannel.NAME),
-                EggNotificationChannel.IMPORTANCE,
-            )
-                .apply {
-                    description = getString(R.string.breakfast_notification_channel_description)
-                    lightColor = Color.RED
-                    enableLights(true)
-                    enableVibration(true)
-                    setShowBadge(false)
-                }
+            val eggNotificationChannel = EggNotificationChannel.create(context = requireActivity())
+            val breakfastNotificationChannel = BreakfastNotificationChannel.create(context = requireActivity())
 
             val notificationManager = requireActivity().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
             notificationManager.createNotificationChannel(eggNotificationChannel)
+            notificationManager.createNotificationChannel(breakfastNotificationChannel)
         }
     }
 

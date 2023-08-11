@@ -8,9 +8,9 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.android.eggtimernotifications.R
 
-object EggNotificationChannel {
-    const val ID = R.string.egg_notification_channel_id
-    private const val NAME = R.string.egg_notification_channel_name
+object BreakfastNotificationChannel {
+    private const val ID = R.string.breakfast_notification_channel_id
+    private const val NAME = R.string.breakfast_notification_channel_name
     private const val IMPORTANCE = NotificationManager.IMPORTANCE_HIGH
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -18,7 +18,7 @@ object EggNotificationChannel {
         return NotificationChannel(
             context.getString(ID),
             context.getString(NAME),
-            IMPORTANCE,
+            IMPORTANCE
         )
             .apply {
                 description = context.getString(R.string.breakfast_notification_channel_description)
