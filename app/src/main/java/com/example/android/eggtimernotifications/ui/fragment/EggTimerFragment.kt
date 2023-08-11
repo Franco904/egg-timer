@@ -18,38 +18,94 @@ package com.example.android.eggtimernotifications.ui.fragment
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import com.example.android.eggtimernotifications.R
 import com.example.android.eggtimernotifications.databinding.FragmentEggTimerBinding
+import com.example.android.eggtimernotifications.notification.channels.EggNotificationChannel
 import com.example.android.eggtimernotifications.ui.viewModel.EggTimerViewModel
 
 class EggTimerFragment : Fragment() {
+    private val viewModel: EggTimerViewModel by viewModels {
+        EggTimerViewModel.provideFactory(application = requireActivity().application)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val viewModel = ViewModelProvider(this).get(EggTimerViewModel::class.java)
-
-        val binding: FragmentEggTimerBinding = DataBindingUtil.inflate<FragmentEggTimerBinding>(
-            inflater, R.layout.fragment_egg_timer, container, false
-        ).apply {
+    ): View {
+        val binding = FragmentEggTimerBinding.inflate(inflater, container, false).apply {
             eggTimerViewModel = viewModel
             lifecycleOwner = viewLifecycleOwner
         }
 
+        // Requires Android 8
+        createNotificationChannels()
+
+        // Requires Android 13
+        requestNotificationPermission()
+        setCheckNotificationPermissionListener()
+
         return binding.root
     }
 
-    companion object {
-        fun newInstance() = EggTimerFragment()
+    private fun createNotificationChannels() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val eggNotificationChannel = NotificationChannel(
+                getString(EggNotificationChannel.ID),
+                getString(EggNotificationChannel.NAME),
+                EggNotificationChannel.IMPORTANCE,
+            )
+                .apply {
+                    description = getString(R.string.breakfast_notification_channel_description)
+                    lightColor = Color.RED
+                    enableLights(true)
+                    enableVibration(true)
+                    setShowBadge(false)
+                }
+
+            val notificationManager = requireActivity().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(eggNotificationChannel)
+        }
+    }
+
+    private fun setCheckNotificationPermissionListener() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            viewModel.checkNotification.observe(viewLifecycleOwner) {
+                val isPermissionGranted = ContextCompat.checkSelfPermission(
+                    requireActivity(),
+                    android.Manifest.permission.POST_NOTIFICATIONS,
+                ) == PackageManager.PERMISSION_GRANTED
+
+                if (isPermissionGranted) {
+                    viewModel.onNotificationPermissionGranted()
+                } else {
+                    requestNotificationPermission()
+                }
+            }
+        } else {
+            viewModel.onNotificationPermissionGranted()
+        }
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                0,
+            )
+        }
     }
 }
-

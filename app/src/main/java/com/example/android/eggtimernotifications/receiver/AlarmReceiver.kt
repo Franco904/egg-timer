@@ -16,6 +16,7 @@
 
 package com.example.android.eggtimernotifications.receiver
 
+import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -28,7 +29,7 @@ class AlarmReceiver: BroadcastReceiver() {
         // Set callback for the moment when alarm time ends up
         val notificationHandler = NotificationHandler(
             context,
-            NotificationManagerCompat.from(context)
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager,
         )
 
         notificationHandler.sendNotification(context.getText(R.string.eggs_ready).toString())

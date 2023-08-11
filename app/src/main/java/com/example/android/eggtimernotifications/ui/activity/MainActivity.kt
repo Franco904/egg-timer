@@ -16,20 +16,21 @@
 
 package com.example.android.eggtimernotifications.ui.activity
 
+import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import com.example.android.eggtimernotifications.R
 import com.example.android.eggtimernotifications.ui.fragment.EggTimerFragment
 
 class MainActivity : AppCompatActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.container, EggTimerFragment.newInstance())
+                .replace(R.id.container, EggTimerFragment())
                 .commitNow()
         }
     }

@@ -1,9 +1,13 @@
 package com.example.android.eggtimernotifications.notification
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.android.eggtimernotifications.R
@@ -13,8 +17,18 @@ import com.example.android.eggtimernotifications.ui.activity.MainActivity
 
 class NotificationHandler(
     private val applicationContext: Context,
-    private val notificationManager: NotificationManagerCompat
+    private val notificationManager: NotificationManager,
 ) {
+    /**
+     * Create app notification channels.
+     */
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun createNotificationChannels(vararg channels: NotificationChannel) {
+        for (channel in channels.toList()) {
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
     /**
      * Builds and delivers the notification.
      */
@@ -25,14 +39,13 @@ class NotificationHandler(
             applicationContext,
             NOTIFICATION_ID,
             contentIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         // Customize notification style
         val eggImage = BitmapFactory.decodeResource(applicationContext.resources, R.drawable.cooked_egg)
         val bigPicStyle = NotificationCompat.BigPictureStyle()
             .bigPicture(eggImage)
-            .bigLargeIcon(null)
 
         // Launch broadcast receiver as notification action 1 intent callback
         val snoozeIntent = Intent(applicationContext, SnoozeReceiver::class.java)
@@ -40,11 +53,11 @@ class NotificationHandler(
             applicationContext,
             REQUEST_CODE,
             snoozeIntent,
-            FLAGS
+            PendingIntent.FLAG_IMMUTABLE,
         )
 
         // Build the notification
-        val builder = NotificationCompat.Builder(
+        val notification = NotificationCompat.Builder(
             applicationContext,
             applicationContext.getString(EggNotificationChannel.ID)
         )
@@ -73,8 +86,15 @@ class NotificationHandler(
              * Min: No sound and does not appear on status bar
              */
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .build()
 
-        notificationManager.notify(NOTIFICATION_ID, builder.build())
+        try {
+            with(NotificationManagerCompat.from(applicationContext)) {
+                notify(NOTIFICATION_ID, notification)
+            }
+        } catch (e: SecurityException) {
+            e.printStackTrace()
+        }
     }
 
     /**
@@ -85,8 +105,7 @@ class NotificationHandler(
     }
 
     companion object {
-        private const val NOTIFICATION_ID = 0
+        private const val NOTIFICATION_ID = 1
         private const val REQUEST_CODE = 0
-        private const val FLAGS = 0
     }
 }
