@@ -25,21 +25,29 @@ import android.content.Intent
 import android.os.SystemClock
 import android.text.format.DateUtils
 import androidx.core.app.AlarmManagerCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.example.android.eggtimernotifications.notification.NotificationHandler
 
 class SnoozeReceiver: BroadcastReceiver() {
-    private val REQUEST_CODE = 0
+    private val requestCode = 0
 
     override fun onReceive(context: Context, intent: Intent) {
+        val notificationHandler = NotificationHandler(
+            context,
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager,
+        )
+
         val triggerTime = SystemClock.elapsedRealtime() + DateUtils.MINUTE_IN_MILLIS
 
         val notifyIntent = Intent(context, AlarmReceiver::class.java)
         val notifyPendingIntent = PendingIntent.getBroadcast(
             context,
-            REQUEST_CODE,
+            requestCode,
             notifyIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         AlarmManagerCompat.setExactAndAllowWhileIdle(
             alarmManager,
@@ -48,11 +56,6 @@ class SnoozeReceiver: BroadcastReceiver() {
             notifyPendingIntent
         )
 
-        val notificationManager = ContextCompat.getSystemService(
-                context,
-                NotificationManager::class.java
-        ) as NotificationManager
-        notificationManager.cancelAll()
+        notificationHandler.cancelAllNotifications()
     }
-
 }
